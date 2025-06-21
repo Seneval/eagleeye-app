@@ -1,10 +1,15 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { ChatInterface } from '@/components/ai/ChatInterface'
 import { bots } from '@/lib/ai/bots'
+import { redirect } from 'next/navigation'
 
 export default async function MarketingPage() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/auth/login')
+  }
 
   // Fetch existing chat
   const { data: chat } = await supabase

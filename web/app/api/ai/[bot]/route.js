@@ -4,12 +4,12 @@ import OpenAI from 'openai'
 import { bots } from '@/lib/ai/bots'
 import { getContextPrompt } from '@/lib/ai/prompts'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 export async function POST(request, { params }) {
   try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+    
     const supabase = await createServerSupabaseClient()
     const { data: { user } } = await supabase.auth.getUser()
 

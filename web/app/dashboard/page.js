@@ -5,10 +5,15 @@ import { TodoList } from '@/components/todos/TodoList'
 import { GoalProgress } from '@/components/GoalProgress'
 import { DailyStats } from '@/components/DailyStats'
 import { PriorityOverview } from '@/components/PriorityOverview'
+import { redirect } from 'next/navigation'
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/auth/login')
+  }
 
   // Fetch today's todos
   const today = new Date().toISOString().split('T')[0]

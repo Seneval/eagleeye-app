@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # Development configuration for Next.js
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for development
+    container_name: eagleeye-web-dev
+    ports:
+      - "3000:3000"
+    environment:
+      # Copy from your .env.local
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+      NODE_ENV: development
+    volumes:
+      # Mount source for hot reload
+      - ./web:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    networks:
+      - eagleeye-network

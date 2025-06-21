@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # Next.js Application
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: eagleeye-web
+    ports:
+      - "3000:3000"
+    environment:
+      # Supabase Configuration
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      # OpenAI Configuration
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # Sentry Configuration
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
+      # App Configuration
+      NODE_ENV: development
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      # Mount source code for development hot-reload
+      - ./web:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - eagleeye-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL Database (Local Supabase Alternative)
+  postgres:
+    image: postgres:16-alpine
+    container_name: eagleeye-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eagleeye
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./web/supabase-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    networks:
+      - eagleeye-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: eagleeye-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - eagleeye-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
+  # Adminer (Database Management UI)
+  adminer:
+    image: adminer:latest
+    container_name: eagleeye-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    networks:
+      - eagleeye-network
+    depends_on:
+      - postgres
+
+networks:
+  eagleeye-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

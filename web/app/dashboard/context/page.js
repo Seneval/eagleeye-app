@@ -1,9 +1,14 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { ContextForm } from '@/components/context/ContextForm'
+import { redirect } from 'next/navigation'
 
 export default async function ContextPage() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/auth/login')
+  }
 
   const { data: context } = await supabase
     .from('business_context')

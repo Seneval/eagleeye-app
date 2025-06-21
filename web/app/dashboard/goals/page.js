@@ -2,10 +2,15 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { Card } from '@/components/ui/Card'
 import { GoalCard } from '@/components/goals/GoalCard'
 import { GoalForm } from '@/components/goals/GoalForm'
+import { redirect } from 'next/navigation'
 
 export default async function GoalsPage() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/auth/login')
+  }
 
   const { data: goals } = await supabase
     .from('business_goals')
