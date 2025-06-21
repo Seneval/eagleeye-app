@@ -34,7 +34,7 @@ export function PriorityCompass({ todos = [] }) {
 
   return (
     <Card className="relative overflow-hidden">
-      <h3 className="text-xl font-semibold text-white mb-4">Priority Compass</h3>
+      <h3 className="text-xl font-semibold text-gray-900 mb-4">Priority Compass</h3>
       
       <div className="flex gap-8">
         <div className="relative w-32 h-32">
@@ -46,10 +46,10 @@ export function PriorityCompass({ todos = [] }) {
           
           {/* Cardinal Points */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="absolute top-0 text-white/60 text-xs">HIGH</span>
-            <span className="absolute right-0 text-white/60 text-xs">MED</span>
-            <span className="absolute bottom-0 text-white/60 text-xs">LOW</span>
-            <span className="absolute left-0 text-white/60 text-xs">DONE</span>
+            <span className="absolute top-0 text-gray-600 text-xs">HIGH</span>
+            <span className="absolute right-0 text-gray-600 text-xs">MED</span>
+            <span className="absolute bottom-0 text-gray-600 text-xs">LOW</span>
+            <span className="absolute left-0 text-gray-600 text-xs">DONE</span>
           </div>
           
           {/* Compass Needle */}
@@ -64,7 +64,7 @@ export function PriorityCompass({ todos = [] }) {
         </div>
 
         <div className="flex-1">
-          <p className="text-sm text-white/60 mb-3">Focus on these next:</p>
+          <p className="text-sm text-gray-600 mb-3">Focus on these next:</p>
           <div className="space-y-2">
             {priorityTodos.map((todo, index) => (
               <div 
@@ -76,7 +76,7 @@ export function PriorityCompass({ todos = [] }) {
                   ${todo.priority === 'high' ? 'bg-red-500' : 
                     todo.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}
                 `} />
-                <span className="text-white/80 truncate">{todo.title}</span>
+                <span className="text-gray-700 truncate">{todo.title}</span>
               </div>
             ))}
           </div>

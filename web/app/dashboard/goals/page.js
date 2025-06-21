@@ -24,22 +24,22 @@ export default async function GoalsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Business Goals</h1>
-        <p className="text-white/60">Set and track your weekly and monthly targets</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Business Goals</h1>
+        <p className="text-gray-600">Set and track your weekly and monthly targets</p>
       </div>
 
       <GoalForm />
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div>
-          <h2 className="text-xl font-semibold text-white mb-4">Active Goals</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Active Goals</h2>
           <div className="space-y-4">
             {activeGoals.map(goal => (
               <GoalCard key={goal.id} goal={goal} />
             ))}
             {activeGoals.length === 0 && (
               <Card>
-                <p className="text-white/50 text-center py-8">
+                <p className="text-gray-500 text-center py-8">
                   No active goals. Create one above!
                 </p>
               </Card>
@@ -48,14 +48,14 @@ export default async function GoalsPage() {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-white mb-4">Completed Goals</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Completed Goals</h2>
           <div className="space-y-4 opacity-75">
             {completedGoals.map(goal => (
               <GoalCard key={goal.id} goal={goal} />
             ))}
             {completedGoals.length === 0 && (
               <Card>
-                <p className="text-white/50 text-center py-8">
+                <p className="text-gray-500 text-center py-8">
                   No completed goals yet
                 </p>
               </Card>

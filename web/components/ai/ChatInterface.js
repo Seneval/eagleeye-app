@@ -57,14 +57,14 @@ export function ChatInterface({ bot, initialMessages = [] }) {
       <div className="flex items-center gap-3 p-4 border-b border-white/10">
         <BotAvatar bot={bot} />
         <div>
-          <h3 className="text-lg font-semibold text-white">{bot.name}</h3>
-          <p className="text-sm text-white/60">{bot.description}</p>
+          <h3 className="text-lg font-semibold text-gray-900">{bot.name}</h3>
+          <p className="text-sm text-gray-600">{bot.description}</p>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
-          <div className="text-center text-white/50 py-12">
+          <div className="text-center text-gray-500 py-12">
             <p className="text-lg mb-2">Hi! I'm {bot.name} {bot.avatar}</p>
             <p>{bot.personality}</p>
           </div>
@@ -83,7 +83,7 @@ export function ChatInterface({ bot, initialMessages = [] }) {
               className={`max-w-[70%] p-3 rounded-lg ${
                 message.role === 'user'
                   ? 'bg-accent text-white'
-                  : 'glass text-white'
+                  : 'bg-gray-100 text-gray-900'
               }`}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
@@ -114,7 +114,7 @@ export function ChatInterface({ bot, initialMessages = [] }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 rounded-lg glass-dark text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="flex-1 px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent"
             disabled={loading}
           />
           <Button type="submit" disabled={loading || !input.trim()}>

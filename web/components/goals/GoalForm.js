@@ -69,7 +69,7 @@ export function GoalForm() {
 
   return (
     <Card>
-      <h3 className="text-xl font-semibold text-white mb-4">Create New Goal</h3>
+      <h3 className="text-xl font-semibold text-gray-900 mb-4">Create New Goal</h3>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
@@ -82,7 +82,7 @@ export function GoalForm() {
           />
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-white/90">
+            <label className="block text-sm font-medium text-gray-700">
               Goal Type
             </label>
             <select
@@ -91,7 +91,7 @@ export function GoalForm() {
                 updateField('type', e.target.value)
                 updateField('targetDate', getDefaultDate(e.target.value))
               }}
-              className="w-full px-4 py-3 rounded-lg glass-dark text-white focus:outline-none focus:ring-2 focus:ring-accent"
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <option value="weekly">Weekly Goal</option>
               <option value="monthly">Monthly Goal</option>

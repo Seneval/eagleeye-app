@@ -98,13 +98,13 @@ export function ContextForm({ initialContext }) {
       {/* Business Information Card - NEW */}
       <Card>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-white">Business Information</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Business Information</h3>
           {saving && <span className="text-sm text-accent">Saving...</span>}
         </div>
 
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-white/90 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Business Description
             </label>
             <textarea
@@ -112,7 +112,7 @@ export function ContextForm({ initialContext }) {
               onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
               placeholder="Describe your business in detail. What do you do? What problems do you solve?"
               rows={4}
-              className="w-full px-4 py-3 rounded-lg glass-dark text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent resize-none"
             />
           </div>
 
@@ -144,7 +144,7 @@ export function ContextForm({ initialContext }) {
       {/* Current Context Card */}
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
-          <h3 className="text-xl font-semibold text-white mb-4">Current Situation</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">Current Situation</h3>
 
           <div className="space-y-6">
             <Input
@@ -175,7 +175,7 @@ export function ContextForm({ initialContext }) {
         </Card>
 
         <Card>
-          <h3 className="text-xl font-semibold text-white mb-4">Market & Goals</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">Market & Goals</h3>
 
           <div className="space-y-6">
             <ArrayInput
@@ -205,7 +205,7 @@ export function ContextForm({ initialContext }) {
 function ArrayInput({ label, items, placeholder, onChange, onAdd, onRemove }) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-white/90">{label}</label>
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
       
       <div className="space-y-2">
         {items.map((item, index) => (
@@ -215,7 +215,7 @@ function ArrayInput({ label, items, placeholder, onChange, onAdd, onRemove }) {
               value={item}
               onChange={(e) => onChange(e.target.value, index)}
               placeholder={placeholder}
-              className="flex-1 px-4 py-2 rounded-lg glass-dark text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent"
+              className="flex-1 px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent"
             />
             <Button
               variant="ghost"

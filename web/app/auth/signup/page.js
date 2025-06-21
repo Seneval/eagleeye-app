@@ -72,8 +72,8 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <Card>
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Get Started Free</h1>
-            <p className="text-white/70">Create your EagleEye account</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Get Started Free</h1>
+            <p className="text-gray-700">Create your EagleEye account</p>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-6">

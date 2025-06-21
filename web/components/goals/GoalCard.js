@@ -48,9 +48,9 @@ export function GoalCard({ goal }) {
     <Card hover={goal.status === 'active'}>
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
-          <h4 className="text-lg font-semibold text-white">{goal.title}</h4>
+          <h4 className="text-lg font-semibold text-gray-900">{goal.title}</h4>
           {goal.description && (
-            <p className="text-sm text-white/60 mt-1">{goal.description}</p>
+            <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
           )}
         </div>
         <div className="text-right">
@@ -60,7 +60,7 @@ export function GoalCard({ goal }) {
           `}>
             {goal.type}
           </span>
-          <p className="text-sm text-white/50 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             {goal.status === 'completed' 
               ? 'Completed' 
               : daysLeft > 0 ? `${daysLeft} days left` : 'Overdue'
@@ -72,7 +72,7 @@ export function GoalCard({ goal }) {
       <div className="space-y-3">
         <div className="flex items-center gap-4">
           <div className="flex-1">
-            <div className="flex justify-between text-sm text-white/60 mb-1">
+            <div className="flex justify-between text-sm text-gray-600 mb-1">
               <span>Progress</span>
               <span>{progress}%</span>
             </div>
