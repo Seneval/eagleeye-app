@@ -10,11 +10,17 @@ export default async function ContextPage() {
     redirect('/auth/login')
   }
 
-  const { data: context } = await supabase
+  const { data: contexts, error } = await supabase
     .from('business_context')
     .select('*')
     .eq('user_id', user.id)
-    .single()
+    .limit(1)
+  
+  if (error) {
+    console.error('Error fetching business context:', error)
+  }
+  
+  const context = contexts?.[0] || null
 
   return (
     <div className="space-y-6">

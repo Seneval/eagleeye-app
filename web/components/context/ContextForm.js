@@ -43,6 +43,11 @@ export function ContextForm({ initialContext }) {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
 
+      if (!user) {
+        console.error('No user found for saving context')
+        return
+      }
+
       const contextData = {
         // Business Information
         business_description: formData.businessDescription,
@@ -58,21 +63,52 @@ export function ContextForm({ initialContext }) {
         user_id: user.id
       }
 
+      let result
       if (initialContext) {
-        await supabase
+        result = await supabase
           .from('business_context')
           .update(contextData)
           .eq('id', initialContext.id)
       } else {
-        await supabase
+        result = await supabase
           .from('business_context')
           .insert(contextData)
+      }
+
+      if (result.error) {
+        console.error('Supabase error saving context:', result.error)
+        // If it's a missing column error, remove the new fields and retry
+        if (result.error.message?.includes('column')) {
+          console.warn('New columns not found, saving without new fields')
+          const fallbackData = {
+            target_market: formData.targetMarket,
+            challenges: formData.challenges,
+            strengths: formData.strengths,
+            competitors: formData.competitors,
+            personal_goals: formData.personalGoals,
+            user_id: user.id
+          }
+          
+          if (initialContext) {
+            await supabase
+              .from('business_context')
+              .update(fallbackData)
+              .eq('id', initialContext.id)
+          } else {
+            await supabase
+              .from('business_context')
+              .insert(fallbackData)
+          }
+        }
+        return
       }
 
       setLastSaved(JSON.stringify(formData))
       router.refresh()
     } catch (error) {
       console.error('Error saving context:', error)
+      // Prevent infinite retry loops
+      setLastSaved(JSON.stringify(formData))
     } finally {
       setSaving(false)
     }
