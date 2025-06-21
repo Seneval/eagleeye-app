@@ -13,17 +13,17 @@ export function ContextForm({ initialContext }) {
   const [lastSaved, setLastSaved] = useState(null)
   
   const [formData, setFormData] = useState({
-    // Business Information (New)
+    // Business Information (New) - with safe fallbacks
     businessDescription: initialContext?.business_description || '',
-    productsServices: initialContext?.products_services || [],
+    productsServices: Array.isArray(initialContext?.products_services) ? initialContext.products_services : [],
     valueProposition: initialContext?.value_proposition || '',
     businessModel: initialContext?.business_model || '',
-    // Existing fields
+    // Existing fields - with safe fallbacks
     targetMarket: initialContext?.target_market || '',
-    challenges: initialContext?.challenges || [],
-    strengths: initialContext?.strengths || [],
-    competitors: initialContext?.competitors || [],
-    personalGoals: initialContext?.personal_goals || []
+    challenges: Array.isArray(initialContext?.challenges) ? initialContext.challenges : [],
+    strengths: Array.isArray(initialContext?.strengths) ? initialContext.strengths : [],
+    competitors: Array.isArray(initialContext?.competitors) ? initialContext.competitors : [],
+    personalGoals: Array.isArray(initialContext?.personal_goals) ? initialContext.personal_goals : []
   })
 
   // Auto-save with debounce

@@ -11,15 +11,22 @@ export function TodoQuickAdd() {
   const [title, setTitle] = useState('')
   const [priority, setPriority] = useState('medium')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!title.trim()) return
 
     setLoading(true)
+    setError(null)
+    
     try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('You must be logged in to add tasks')
+      }
       
       const { error } = await supabase
         .from('daily_todos')
@@ -37,6 +44,7 @@ export function TodoQuickAdd() {
       router.refresh()
     } catch (error) {
       console.error('Error adding todo:', error)
+      setError(error.message || 'Failed to add task')
     } finally {
       setLoading(false)
     }
@@ -45,6 +53,11 @@ export function TodoQuickAdd() {
   return (
     <Card>
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Task</h3>
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="flex gap-3">
         <input
           type="text"
