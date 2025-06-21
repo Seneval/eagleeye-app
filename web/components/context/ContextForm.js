@@ -13,6 +13,12 @@ export function ContextForm({ initialContext }) {
   const [lastSaved, setLastSaved] = useState(null)
   
   const [formData, setFormData] = useState({
+    // Business Information (New)
+    businessDescription: initialContext?.business_description || '',
+    productsServices: initialContext?.products_services || [],
+    valueProposition: initialContext?.value_proposition || '',
+    businessModel: initialContext?.business_model || '',
+    // Existing fields
     targetMarket: initialContext?.target_market || '',
     challenges: initialContext?.challenges || [],
     strengths: initialContext?.strengths || [],
@@ -38,6 +44,12 @@ export function ContextForm({ initialContext }) {
       const { data: { user } } = await supabase.auth.getUser()
 
       const contextData = {
+        // Business Information
+        business_description: formData.businessDescription,
+        products_services: formData.productsServices,
+        value_proposition: formData.valueProposition,
+        business_model: formData.businessModel,
+        // Existing fields
         target_market: formData.targetMarket,
         challenges: formData.challenges,
         strengths: formData.strengths,
@@ -82,64 +94,110 @@ export function ContextForm({ initialContext }) {
   }
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
+      {/* Business Information Card - NEW */}
       <Card>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-white">About Your Business</h3>
+          <h3 className="text-xl font-semibold text-white">Business Information</h3>
           {saving && <span className="text-sm text-accent">Saving...</span>}
         </div>
 
         <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-white/90 mb-2">
+              Business Description
+            </label>
+            <textarea
+              value={formData.businessDescription}
+              onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
+              placeholder="Describe your business in detail. What do you do? What problems do you solve?"
+              rows={4}
+              className="w-full px-4 py-3 rounded-lg glass-dark text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+            />
+          </div>
+
+          <ArrayInput
+            label="Products & Services"
+            items={formData.productsServices}
+            placeholder="e.g., Web Development, Consulting"
+            onChange={(value, index) => handleArrayInput('productsServices', value, index)}
+            onAdd={() => addArrayItem('productsServices')}
+            onRemove={(index) => removeArrayItem('productsServices', index)}
+          />
+
           <Input
-            label="Target Market"
-            placeholder="Who are your ideal customers?"
-            value={formData.targetMarket}
-            onChange={(e) => setFormData(prev => ({ ...prev, targetMarket: e.target.value }))}
+            label="Value Proposition"
+            placeholder="What makes your business unique? Why should customers choose you?"
+            value={formData.valueProposition}
+            onChange={(e) => setFormData(prev => ({ ...prev, valueProposition: e.target.value }))}
           />
 
-          <ArrayInput
-            label="Current Challenges"
-            items={formData.challenges}
-            placeholder="e.g., Finding new clients"
-            onChange={(value, index) => handleArrayInput('challenges', value, index)}
-            onAdd={() => addArrayItem('challenges')}
-            onRemove={(index) => removeArrayItem('challenges', index)}
-          />
-
-          <ArrayInput
-            label="Key Strengths"
-            items={formData.strengths}
-            placeholder="e.g., Fast delivery times"
-            onChange={(value, index) => handleArrayInput('strengths', value, index)}
-            onAdd={() => addArrayItem('strengths')}
-            onRemove={(index) => removeArrayItem('strengths', index)}
+          <Input
+            label="Business Model"
+            placeholder="How does your business make money? (e.g., subscription, one-time sales, services)"
+            value={formData.businessModel}
+            onChange={(e) => setFormData(prev => ({ ...prev, businessModel: e.target.value }))}
           />
         </div>
       </Card>
 
-      <Card>
-        <h3 className="text-xl font-semibold text-white mb-4">Market & Goals</h3>
+      {/* Current Context Card */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        <Card>
+          <h3 className="text-xl font-semibold text-white mb-4">Current Situation</h3>
 
-        <div className="space-y-6">
-          <ArrayInput
-            label="Main Competitors"
-            items={formData.competitors}
-            placeholder="e.g., Company X"
-            onChange={(value, index) => handleArrayInput('competitors', value, index)}
-            onAdd={() => addArrayItem('competitors')}
-            onRemove={(index) => removeArrayItem('competitors', index)}
-          />
+          <div className="space-y-6">
+            <Input
+              label="Target Market"
+              placeholder="Who are your ideal customers?"
+              value={formData.targetMarket}
+              onChange={(e) => setFormData(prev => ({ ...prev, targetMarket: e.target.value }))}
+            />
 
-          <ArrayInput
-            label="Personal Goals"
-            items={formData.personalGoals}
-            placeholder="e.g., Work-life balance"
-            onChange={(value, index) => handleArrayInput('personalGoals', value, index)}
-            onAdd={() => addArrayItem('personalGoals')}
-            onRemove={(index) => removeArrayItem('personalGoals', index)}
-          />
-        </div>
-      </Card>
+            <ArrayInput
+              label="Current Challenges"
+              items={formData.challenges}
+              placeholder="e.g., Finding new clients"
+              onChange={(value, index) => handleArrayInput('challenges', value, index)}
+              onAdd={() => addArrayItem('challenges')}
+              onRemove={(index) => removeArrayItem('challenges', index)}
+            />
+
+            <ArrayInput
+              label="Key Strengths"
+              items={formData.strengths}
+              placeholder="e.g., Fast delivery times"
+              onChange={(value, index) => handleArrayInput('strengths', value, index)}
+              onAdd={() => addArrayItem('strengths')}
+              onRemove={(index) => removeArrayItem('strengths', index)}
+            />
+          </div>
+        </Card>
+
+        <Card>
+          <h3 className="text-xl font-semibold text-white mb-4">Market & Goals</h3>
+
+          <div className="space-y-6">
+            <ArrayInput
+              label="Main Competitors"
+              items={formData.competitors}
+              placeholder="e.g., Company X"
+              onChange={(value, index) => handleArrayInput('competitors', value, index)}
+              onAdd={() => addArrayItem('competitors')}
+              onRemove={(index) => removeArrayItem('competitors', index)}
+            />
+
+            <ArrayInput
+              label="Personal Goals"
+              items={formData.personalGoals}
+              placeholder="e.g., Work-life balance"
+              onChange={(value, index) => handleArrayInput('personalGoals', value, index)}
+              onAdd={() => addArrayItem('personalGoals')}
+              onRemove={(index) => removeArrayItem('personalGoals', index)}
+            />
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }

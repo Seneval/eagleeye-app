@@ -11,9 +11,9 @@ module.exports = {
         primary: '#2563EB',
         accent: '#10B981',
         success: '#10B981',
-        border: 'hsl(var(--border))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        border: '#E5E7EB',
+        background: '#FAFAFA',
+        foreground: '#111827',
       },
       animation: {
         'gradient': 'gradient 15s ease infinite',

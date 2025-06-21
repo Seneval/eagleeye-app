@@ -9,11 +9,23 @@ import { Button } from '@/components/ui/Button'
 
 export function GoalForm() {
   const router = useRouter()
+  
+  // Calculate default date based on type
+  const getDefaultDate = (type) => {
+    const date = new Date()
+    if (type === 'weekly') {
+      date.setDate(date.getDate() + 7)
+    } else {
+      date.setMonth(date.getMonth() + 1)
+    }
+    return date.toISOString().split('T')[0]
+  }
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     type: 'weekly',
-    targetDate: ''
+    targetDate: getDefaultDate('weekly')
   })
   const [loading, setLoading] = useState(false)
 
@@ -28,7 +40,9 @@ export function GoalForm() {
       const { error } = await supabase
         .from('business_goals')
         .insert({
-          ...formData,
+          title: formData.title,
+          description: formData.description,
+          type: formData.type,
           target_date: formData.targetDate,
           user_id: user.id
         })
@@ -51,17 +65,6 @@ export function GoalForm() {
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-  }
-
-  // Calculate default dates
-  const getDefaultDate = (type) => {
-    const date = new Date()
-    if (type === 'weekly') {
-      date.setDate(date.getDate() + 7)
-    } else {
-      date.setMonth(date.getMonth() + 1)
-    }
-    return date.toISOString().split('T')[0]
   }
 
   return (

@@ -43,15 +43,37 @@ export async function getContextPrompt(supabase, userId) {
   }
 
   if (context) {
-    contextPrompt += '\nBusiness Context:\n'
+    contextPrompt += '\nBusiness Information:\n'
+    
+    // New business information fields
+    if (context.business_description) {
+      contextPrompt += `Business Description: ${context.business_description}\n`
+    }
+    if (context.products_services?.length > 0) {
+      contextPrompt += `Products/Services: ${context.products_services.join(', ')}\n`
+    }
+    if (context.value_proposition) {
+      contextPrompt += `Value Proposition: ${context.value_proposition}\n`
+    }
+    if (context.business_model) {
+      contextPrompt += `Business Model: ${context.business_model}\n`
+    }
+    
+    // Existing fields
     if (context.target_market) {
       contextPrompt += `Target Market: ${context.target_market}\n`
     }
     if (context.challenges?.length > 0) {
-      contextPrompt += `Challenges: ${context.challenges.join(', ')}\n`
+      contextPrompt += `Current Challenges: ${context.challenges.join(', ')}\n`
     }
     if (context.strengths?.length > 0) {
-      contextPrompt += `Strengths: ${context.strengths.join(', ')}\n`
+      contextPrompt += `Key Strengths: ${context.strengths.join(', ')}\n`
+    }
+    if (context.competitors?.length > 0) {
+      contextPrompt += `Competitors: ${context.competitors.join(', ')}\n`
+    }
+    if (context.personal_goals?.length > 0) {
+      contextPrompt += `Personal Goals: ${context.personal_goals.join(', ')}\n`
     }
   }
 
