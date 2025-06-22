@@ -1,11 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/Card'
 import { TodoItem } from './TodoItem'
 
 export function TodoList({ todos: initialTodos }) {
   const [todos, setTodos] = useState(initialTodos)
+  
+  // Update local state when props change
+  useEffect(() => {
+    setTodos(initialTodos)
+  }, [initialTodos])
 
   const handleDragStart = (e, index) => {
     e.dataTransfer.effectAllowed = 'move'

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 
@@ -21,23 +20,22 @@ export function TodoQuickAdd() {
     setError(null)
     
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        throw new Error('You must be logged in to add tasks')
-      }
-      
-      const { error } = await supabase
-        .from('daily_todos')
-        .insert({
+      const response = await fetch('/api/todos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           title: title.trim(),
           priority,
-          user_id: user.id,
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split('T')[0] // Always add to today
         })
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to add task')
+      }
 
       setTitle('')
       setPriority('medium')

@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { ContextForm } from '@/components/context/ContextForm'
 import { redirect } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ContextPage() {
   try {
     const supabase = await createServerSupabaseClient()

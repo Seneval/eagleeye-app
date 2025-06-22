@@ -4,6 +4,8 @@ import { GoalCard } from '@/components/goals/GoalCard'
 import { GoalForm } from '@/components/goals/GoalForm'
 import { redirect } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 export default async function GoalsPage() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()

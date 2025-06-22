@@ -18,7 +18,7 @@ export async function POST(request, { params }) {
     }
 
     const { message } = await request.json()
-    const botId = params.bot
+    const { bot: botId } = await params
 
     if (!bots[botId]) {
       return NextResponse.json({ error: 'Invalid bot' }, { status: 400 })
