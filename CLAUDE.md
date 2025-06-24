@@ -127,13 +127,155 @@
 ### Sentry Configuration
 - **Organization**: Available (check with `find_organizations`)
 - **Project**: eagleeye-app (JavaScript platform)
-- **Environment**: Development (ready for production setup)
-- **Next Steps**: Configure source maps for Next.js
+- **Environment**: Production-ready with full SDK integration
+- **Status**: ✅ Fully integrated with Next.js 15 using instrumentation.ts
+- **Features Enabled**:
+  - Error tracking with user context (no PII)
+  - Performance monitoring with transaction tracking
+  - Session replay for error reproduction
+  - Custom error boundaries
+  - Beta version tracking (1.0.0-beta)
+- **Testing**: Visit `/dashboard/test-sentry` to verify integration
 
 ### Docker Configuration
 - **MCP Server**: Running (container: goofy_banzai)
 - **Status**: Active and ready for use
-- **Next Steps**: Create development containers for the app
+- **Health Check**: Comprehensive validation with rate limiting
+- **Container Testing**: Full app containerization tested
+- **Production Ready**: Environment validation and service checks implemented
+
+## Production Features (Beta-Ready)
+
+### Rate Limiting System
+- **Implementation**: `/web/lib/rate-limit.js`
+- **Configuration**:
+  - Auth endpoints: 5 requests per 15 minutes
+  - API endpoints: 60 requests per minute
+  - AI endpoints: 10 requests per minute
+  - Health check: 60 requests per minute
+- **Features**: In-memory storage (Redis-ready), automatic cleanup, standard headers
+- **Usage**: All API routes protected with `withRateLimit` wrapper
+
+### Structured Logging
+- **Implementation**: `/web/lib/logger.js`
+- **Components**: auth, api, database, ai, ui
+- **Features**:
+  - User context tracking (no PII)
+  - Performance timing
+  - API call monitoring
+  - Sentry breadcrumb integration
+  - Action tracking for debugging
+
+### Environment Validation
+- **Implementation**: `/web/lib/env-check.js`
+- **Features**:
+  - Comprehensive validation for all required variables
+  - Format checking (URLs, JWTs, API keys)
+  - Placeholder detection
+  - Runtime environment checks
+  - Detailed error messages with examples
+
+### Health Monitoring
+- **Endpoint**: `/api/health`
+- **Checks**: Database, OpenAI API, Sentry integration
+- **Features**: Service validation, rate limiting, version info, degraded state detection
+
+### Error Boundaries
+- **Enhanced**: `/web/app/dashboard/error.js`
+- **Features**:
+  - Intelligent error type detection
+  - User-friendly messages
+  - Error ID generation for support
+  - Contextual recovery actions
+  - Beta tester support info
+
+## Beta Testing Infrastructure
+
+### Sentry Testing
+- **UI Testing**: `/dashboard/test-sentry` - Interactive testing interface
+- **API Testing**: `/api/test-sentry` - Direct API endpoint testing
+- **Test Types**:
+  - Client-side errors
+  - API errors
+  - Unhandled promise rejections
+  - Custom error messages
+  - Performance tracking
+
+### Version Tracking
+- **Current Version**: 1.0.0-beta
+- **Tracking**: Version included in all error reports and health checks
+- **User Context**: Anonymous user ID tracking for debugging
+
+### Support Features
+- **Error IDs**: Unique identifiers for each error occurrence
+- **User Actions**: Tracked in breadcrumbs for reproduction
+- **Performance Metrics**: API response times and database query performance
+
+## Security Enhancements
+
+### Data Protection
+- **PII Handling**: No personal information in error reports
+- **User Context**: Only anonymous IDs tracked
+- **Sensitive Data**: All API keys and tokens validated and masked
+
+### API Security
+- **Rate Limiting**: Protection against abuse on all endpoints
+- **Environment Variables**: Comprehensive validation with format checking
+- **Error Messages**: Sanitized to prevent information leakage
+
+### Authentication
+- **JWT Validation**: Proper token format checking
+- **Session Security**: Secure cookie handling
+- **Auth Rate Limiting**: Stricter limits on authentication endpoints
+
+## Deployment Configuration
+
+### Vercel Setup
+- **Configuration**: `/web/vercel.json`
+- **Region**: iad1 (US East)
+- **Function Limits**: 60s for API routes, 10s for others
+- **Build Command**: `npm run build`
+- **Output Directory**: `.next`
+
+### Environment Variables
+Required variables (see `/web/.env.example`):
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_JWT_SECRET`
+- `OPENAI_API_KEY`
+- `NEXT_PUBLIC_SENTRY_DSN`
+- `SENTRY_AUTH_TOKEN`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+### Production Optimizations
+- **Sentry Sample Rates**: 10% traces, 10% profiles in production
+- **Error Filtering**: Browser extensions and network errors filtered
+- **Performance Monitoring**: Critical transactions tracked
+- **Static Generation**: Disabled for dashboard pages (dynamic content)
+
+## Critical Fixes Applied
+
+### Database Stability
+- **Issue**: `.single()` queries causing crashes
+- **Fix**: Replaced with `.limit(1)` for null-safe queries
+- **Files**: All API routes and components
+
+### Dynamic Rendering
+- **Issue**: "cookies" error during static generation
+- **Fix**: Added `export const dynamic = 'force-dynamic'` to dashboard pages
+- **Affected**: All `/dashboard/*` pages
+
+### Null Safety
+- **Issue**: Crashes on missing data
+- **Fix**: Comprehensive null checks and array validation
+- **Implementation**: Optional chaining and default values throughout
+
+### Next.js 15 Compatibility
+- **Issue**: Async params in route handlers
+- **Fix**: Proper async/await handling in API routes
+- **Migration**: Updated to new App Router patterns
 
 ## Project-Specific Reminders
 
@@ -183,15 +325,50 @@ mcp__Docker__list_containers(all=true)
 # View Sentry issues
 mcp__Sentry__find_issues(organizationSlug='your-org', query='is:unresolved')
 
+# Test Sentry integration
+mcp__Sentry__get_issue_details(organizationSlug='your-org', issueId='ISSUE-ID')
+
+# Check security advisors
+mcp__supabase__get_advisors(type='security')
+
 # Deploy Supabase function
 mcp__supabase__deploy_edge_function(name='ai-bot', files=[...])
 
 # Create Stripe product
 mcp__stripe__create_product(name='EagleEye Premium')
+
+# Health check verification
+curl https://your-app.vercel.app/api/health
+
+# Test Sentry manually
+curl https://your-app.vercel.app/api/test-sentry?type=error
+
+# Validate environment
+node web/lib/env-check.js
+
+# Check rate limit headers
+curl -I https://your-app.vercel.app/api/todos
 ```
 
 ## Notes
 - All MCPs are currently connected and functional
-- Sentry project created but needs SDK integration in code
-- Docker MCP server is running and ready
+- Sentry SDK is fully integrated with Next.js 15 instrumentation
+- Docker MCP server is running and production-tested
+- Rate limiting implemented on all API endpoints
+- Health monitoring available at `/api/health`
+- Environment validation ensures all required variables are set
+- Beta testing infrastructure ready with error tracking
+- Production deployment configured for Vercel
 - Remember to use environment variables for all credentials
+
+## Recent Updates (Beta Release)
+- ✅ Migrated Sentry to instrumentation.ts pattern
+- ✅ Implemented comprehensive rate limiting
+- ✅ Added structured logging with user context
+- ✅ Enhanced error boundaries with recovery actions
+- ✅ Fixed all critical stability issues
+- ✅ Added health check with service validation
+- ✅ Created Sentry testing infrastructure
+- ✅ Configured production deployment settings
+- ✅ Applied Next.js 15 compatibility fixes
+- ✅ Implemented comprehensive null safety

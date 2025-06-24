@@ -3,6 +3,7 @@ import { ChatInterface } from '@/components/ai/ChatInterface'
 import { bots } from '@/lib/ai/bots'
 import { redirect } from 'next/navigation'
 import { BackButton } from '@/components/ui/BackButton'
+import { checkAIBotLimit } from '@/lib/ai/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,18 @@ export default async function AssistantPage() {
   if (!user) {
     redirect('/auth/login')
   }
+
+  // Get user's subscription tier
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('subscription_tier')
+    .eq('id', user.id)
+    .limit(1)
+
+  const subscriptionTier = profile?.[0]?.subscription_tier || 'free'
+
+  // Check current usage limits
+  const limitInfo = await checkAIBotLimit(user.id, 'assistant', subscriptionTier)
 
   // Fetch existing chat
   const { data: chat } = await supabase
@@ -38,6 +51,12 @@ export default async function AssistantPage() {
       <ChatInterface 
         bot={bots.assistant}
         initialMessages={chat?.messages || []}
+        initialLimitInfo={{
+          limit: limitInfo.limit,
+          remaining: limitInfo.remaining,
+          resetAt: limitInfo.resetAt,
+          tier: subscriptionTier
+        }}
       />
     </div>
   )

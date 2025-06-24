@@ -5,10 +5,12 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { BotAvatar } from './BotAvatar'
 
-export function ChatInterface({ bot, initialMessages = [] }) {
+export function ChatInterface({ bot, initialMessages = [], initialLimitInfo = null }) {
   const [messages, setMessages] = useState(initialMessages)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [limitInfo, setLimitInfo] = useState(initialLimitInfo)
+  const [rateLimitError, setRateLimitError] = useState(null)
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -35,12 +37,25 @@ export function ChatInterface({ bot, initialMessages = [] }) {
 
       const data = await response.json()
       
+      if (response.status === 429) {
+        // Rate limit exceeded
+        setRateLimitError(data.message)
+        // Don't add an assistant message for rate limit errors
+        return
+      }
+      
       if (data.error) throw new Error(data.error)
+
+      // Update limit info if provided
+      if (data.limitInfo) {
+        setLimitInfo(data.limitInfo)
+      }
 
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: data.message 
       }])
+      setRateLimitError(null)
     } catch (error) {
       console.error('Chat error:', error)
       setMessages(prev => [...prev, { 
@@ -54,12 +69,30 @@ export function ChatInterface({ bot, initialMessages = [] }) {
 
   return (
     <Card className="h-[600px] flex flex-col">
-      <div className="flex items-center gap-3 p-4 border-b border-white/10">
-        <BotAvatar bot={bot} />
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">{bot.name}</h3>
-          <p className="text-sm text-gray-600">{bot.description}</p>
+      <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <BotAvatar bot={bot} />
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">{bot.name}</h3>
+            <p className="text-sm text-gray-600">{bot.description}</p>
+          </div>
         </div>
+        
+        {limitInfo && (
+          <div className="text-right">
+            <p className="text-sm font-medium text-gray-700">
+              Daily Messages
+            </p>
+            <p className="text-xs text-gray-500">
+              {limitInfo.limit - limitInfo.remaining}/{limitInfo.limit} used
+            </p>
+            {limitInfo.tier === 'free' && limitInfo.remaining <= 3 && limitInfo.remaining > 0 && (
+              <p className="text-xs text-orange-600 mt-1">
+                {limitInfo.remaining} left today
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -107,6 +140,28 @@ export function ChatInterface({ bot, initialMessages = [] }) {
         <div ref={messagesEndRef} />
       </div>
 
+      {rateLimitError && (
+        <div className="mx-4 mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <p className="text-sm text-orange-800">{rateLimitError}</p>
+          <div className="mt-2 flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => window.location.href = '/pricing'}
+            >
+              Upgrade to Premium
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost"
+              onClick={() => setRateLimitError(null)}
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={sendMessage} className="p-4 border-t border-white/10">
         <div className="flex gap-2">
           <input
@@ -115,9 +170,12 @@ export function ChatInterface({ bot, initialMessages = [] }) {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             className="flex-1 px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent"
-            disabled={loading}
+            disabled={loading || (limitInfo && limitInfo.remaining === 0)}
           />
-          <Button type="submit" disabled={loading || !input.trim()}>
+          <Button 
+            type="submit" 
+            disabled={loading || !input.trim() || (limitInfo && limitInfo.remaining === 0)}
+          >
             Send
           </Button>
         </div>

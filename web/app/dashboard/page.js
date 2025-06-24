@@ -5,6 +5,7 @@ import { TodoList } from '@/components/todos/TodoList'
 import { GoalProgress } from '@/components/GoalProgress'
 import { DailyStats } from '@/components/DailyStats'
 import { PriorityOverview } from '@/components/PriorityOverview'
+import { AIBotsCard } from '@/components/ai/AIBotsCard'
 import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
@@ -54,6 +55,7 @@ export default async function DashboardPage() {
 
         <div className="space-y-6">
           <PriorityOverview todos={todos || []} />
+          <AIBotsCard />
           <GoalProgress goals={goals || []} />
         </div>
       </div>

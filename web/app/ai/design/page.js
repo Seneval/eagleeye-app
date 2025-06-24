@@ -7,7 +7,7 @@ import { checkAIBotLimit } from '@/lib/ai/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-export default async function MarketingPage() {
+export default async function DesignPage() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -25,14 +25,14 @@ export default async function MarketingPage() {
   const subscriptionTier = profile?.[0]?.subscription_tier || 'free'
 
   // Check current usage limits
-  const limitInfo = await checkAIBotLimit(user.id, 'marketing', subscriptionTier)
+  const limitInfo = await checkAIBotLimit(user.id, 'design', subscriptionTier)
 
   // Fetch existing chat
   const { data: chat } = await supabase
     .from('ai_chats')
     .select('*')
     .eq('user_id', user.id)
-    .eq('bot_type', 'marketing')
+    .eq('bot_type', 'design')
     .order('created_at', { ascending: false })
     .limit(1)
     .single()
@@ -42,14 +42,14 @@ export default async function MarketingPage() {
       <BackButton href="/dashboard">Back to Dashboard</BackButton>
       
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Marketing Assistant</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Design Assistant</h1>
         <p className="text-gray-600">
-          Get help with marketing strategies, user personas, and campaigns
+          Get help with branding, UI/UX, and visual design decisions
         </p>
       </div>
 
       <ChatInterface 
-        bot={bots.marketing}
+        bot={bots.design}
         initialMessages={chat?.messages || []}
         initialLimitInfo={{
           limit: limitInfo.limit,
