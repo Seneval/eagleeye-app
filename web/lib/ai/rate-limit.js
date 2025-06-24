@@ -69,7 +69,7 @@ export async function checkAIBotLimit(userId, botType, subscriptionTier = 'free'
       }
     }
 
-    const currentUsage = usage[0]
+    const currentUsage = usage[0] || { request_count: 0 }
     const remaining = Math.max(0, limit - currentUsage.request_count)
     const allowed = remaining > 0
 
@@ -122,52 +122,56 @@ export async function incrementAIBotUsage(userId, botType) {
   const today = new Date().toISOString().split('T')[0]
 
   try {
-    // Use upsert to handle race conditions
-    const { data, error } = await supabase
-      .from('ai_usage')
-      .upsert({
-        user_id: userId,
-        bot_type: botType,
-        date: today,
-        request_count: 1
-      }, {
-        onConflict: 'user_id,bot_type,date',
-        ignoreDuplicates: false
+    // First try to use the RPC function which handles everything
+    const { data: rpcResult, error: rpcError } = await supabase
+      .rpc('increment_ai_usage', {
+        p_user_id: userId,
+        p_bot_type: botType,
+        p_date: today
       })
-      .select()
 
-    if (!error && (!data || data.length === 0)) {
-      // If upsert didn't return data, increment existing record
-      const { data: updated, error: updateError } = await supabase
-        .rpc('increment_ai_usage', {
-          p_user_id: userId,
-          p_bot_type: botType,
-          p_date: today
-        })
-
-      if (updateError) {
-        // Fallback to manual increment
-        const { error: incrementError } = await supabase
+    if (rpcError) {
+      // If RPC fails, try to create the record first
+      if (rpcError.code === 'PGRST202') {
+        // Record doesn't exist, create it
+        const { error: insertError } = await supabase
           .from('ai_usage')
-          .update({ 
-            request_count: supabase.raw('request_count + 1'),
-            updated_at: new Date().toISOString()
+          .insert({
+            user_id: userId,
+            bot_type: botType,
+            date: today,
+            request_count: 1
           })
-          .eq('user_id', userId)
-          .eq('bot_type', botType)
-          .eq('date', today)
 
-        if (incrementError) throw incrementError
+        if (insertError && insertError.code !== '23505') {
+          // If not a duplicate key error, throw it
+          throw insertError
+        }
+        
+        // If it was a duplicate key error, try RPC again
+        if (insertError && insertError.code === '23505') {
+          const { error: retryError } = await supabase
+            .rpc('increment_ai_usage', {
+              p_user_id: userId,
+              p_bot_type: botType,
+              p_date: today
+            })
+          
+          if (retryError) throw retryError
+        }
+      } else {
+        throw rpcError
       }
     }
 
     logger.info('AI bot usage incremented', {
       userId,
       botType,
-      date: today
+      date: today,
+      newCount: rpcResult
     })
 
-    return { success: true }
+    return { success: true, count: rpcResult }
   } catch (error) {
     logger.error('Error incrementing AI bot usage', {
       error: error.message,
