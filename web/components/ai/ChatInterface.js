@@ -24,7 +24,7 @@ export function ChatInterface({ bot, initialMessages = [], initialLimitInfo = nu
     if (!input.trim() || loading) return
 
     const userMessage = { role: 'user', content: input.trim() }
-    setMessages(prev => [...prev, userMessage])
+    const userInput = input // Save input before clearing
     setInput('')
     setLoading(true)
 
@@ -40,9 +40,13 @@ export function ChatInterface({ bot, initialMessages = [], initialLimitInfo = nu
       if (response.status === 429) {
         // Rate limit exceeded
         setRateLimitError(data.message)
-        // Don't add an assistant message for rate limit errors
+        setInput(userInput) // Restore the input so user can see what they tried to send
+        // Don't add any messages to the chat
         return
       }
+      
+      // Only add user message if request was successful
+      setMessages(prev => [...prev, userMessage])
       
       if (data.error) throw new Error(data.error)
 
@@ -140,9 +144,11 @@ export function ChatInterface({ bot, initialMessages = [], initialLimitInfo = nu
         <div ref={messagesEndRef} />
       </div>
 
-      {rateLimitError && (
+      {(rateLimitError || (limitInfo && limitInfo.remaining === 0)) && (
         <div className="mx-4 mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-          <p className="text-sm text-orange-800">{rateLimitError}</p>
+          <p className="text-sm text-orange-800">
+            {rateLimitError || `You've reached your daily limit of ${limitInfo.limit} messages for this AI assistant. Your limit will reset at midnight. Upgrade to premium for ${limitInfo.limit * 10} daily messages!`}
+          </p>
           <div className="mt-2 flex gap-2">
             <Button 
               size="sm" 
@@ -151,13 +157,15 @@ export function ChatInterface({ bot, initialMessages = [], initialLimitInfo = nu
             >
               Upgrade to Premium
             </Button>
-            <Button 
-              size="sm" 
-              variant="ghost"
-              onClick={() => setRateLimitError(null)}
-            >
-              Dismiss
-            </Button>
+            {rateLimitError && (
+              <Button 
+                size="sm" 
+                variant="ghost"
+                onClick={() => setRateLimitError(null)}
+              >
+                Dismiss
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -168,8 +176,12 @@ export function ChatInterface({ bot, initialMessages = [], initialLimitInfo = nu
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent"
+            placeholder={limitInfo && limitInfo.remaining === 0 ? "Daily limit reached - Upgrade to continue" : "Type your message..."}
+            className={`flex-1 px-4 py-2 rounded-lg border ${
+              limitInfo && limitInfo.remaining === 0 
+                ? 'bg-gray-100 border-gray-300 text-gray-500' 
+                : 'bg-gray-50 border-gray-200 text-gray-900'
+            } placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent`}
             disabled={loading || (limitInfo && limitInfo.remaining === 0)}
           />
           <Button 
