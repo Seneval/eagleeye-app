@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { Card } from '@/components/ui/Card'
 import { TodoQuickAdd } from '@/components/todos/TodoQuickAdd'
 import { TodoList } from '@/components/todos/TodoList'
+import { TodoSection } from '@/components/todos/TodoSection'
 import { GoalProgress } from '@/components/GoalProgress'
 import { DailyStats } from '@/components/DailyStats'
 import { PriorityOverview } from '@/components/PriorityOverview'
@@ -18,13 +19,43 @@ export default async function DashboardPage() {
     redirect('/auth/login')
   }
 
+  // Get date ranges
+  const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
+  
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayStr = yesterday.toISOString().split('T')[0]
+  
+  const twoDaysAgo = new Date(today)
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
+  const twoDaysAgoStr = twoDaysAgo.toISOString().split('T')[0]
+
   // Fetch today's todos
-  const today = new Date().toISOString().split('T')[0]
-  const { data: todos } = await supabase
+  const { data: todaysTodos } = await supabase
     .from('daily_todos')
     .select('*')
     .eq('user_id', user.id)
-    .eq('date', today)
+    .eq('date', todayStr)
+    .order('position')
+
+  // Fetch yesterday's incomplete todos
+  const { data: yesterdaysTodos } = await supabase
+    .from('daily_todos')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('date', yesterdayStr)
+    .eq('completed', false)
+    .order('position')
+
+  // Fetch overdue todos (older than yesterday and incomplete)
+  const { data: overdueTodos } = await supabase
+    .from('daily_todos')
+    .select('*')
+    .eq('user_id', user.id)
+    .lt('date', yesterdayStr)
+    .eq('completed', false)
+    .order('date', { ascending: false })
     .order('position')
 
   // Fetch active goals
@@ -44,17 +75,39 @@ export default async function DashboardPage() {
 
       {/* Stats Overview */}
       <div className="grid gap-6 mb-8 md:grid-cols-4">
-        <DailyStats todos={todos || []} />
+        <DailyStats todos={todaysTodos || []} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <TodoQuickAdd />
-          <TodoList todos={todos || []} />
+          
+          {/* Today's Tasks */}
+          <TodoList todos={todaysTodos || []} />
+          
+          {/* Yesterday's Tasks */}
+          {yesterdaysTodos && yesterdaysTodos.length > 0 && (
+            <TodoSection 
+              title="Yesterday's Tasks" 
+              todos={yesterdaysTodos} 
+              showCompleted={false}
+              className="border-yellow-200 bg-yellow-50"
+            />
+          )}
+          
+          {/* Overdue Tasks */}
+          {overdueTodos && overdueTodos.length > 0 && (
+            <TodoSection 
+              title="Overdue Tasks" 
+              todos={overdueTodos} 
+              showCompleted={false}
+              className="border-red-200 bg-red-50"
+            />
+          )}
         </div>
 
         <div className="space-y-6">
-          <PriorityOverview todos={todos || []} />
+          <PriorityOverview todos={todaysTodos || []} />
           <AIBotsCard />
           <GoalProgress goals={goals || []} />
         </div>

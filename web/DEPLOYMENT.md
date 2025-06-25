@@ -1,6 +1,6 @@
 # Deployment Guide for EagleEye
 
-## Deploying to Vercel
+## Deploying to Vercelcla
 
 ### Prerequisites
 1. GitHub repository with your code
